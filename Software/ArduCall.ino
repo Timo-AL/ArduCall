@@ -1,5 +1,6 @@
 //ArduCall
-//fix for Arduino Nano R3.
+//Applying to Arduino Nano R3.
+//适用于Arduino Nano R3
 //Beveloped By Timo.
 //2018.1.1
 //GPL V3
