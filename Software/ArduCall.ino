@@ -7,10 +7,14 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <MsTimer2.h>
-int RR=0;
+int RR=0;                                           //电位器引脚
 int RG=1;
 int RB=2;
 int RW=3;
+int LR=6;                                           //PEM引脚
+int LG=9;
+int LB=10;
+int LW=11;
 int red=0;
 int green=0;
 int blue=0;
@@ -39,19 +43,27 @@ void setup()                                        //开机预设
   lcd.init();                                       //初始化IIC1602
   lcd.backlight();
   Serial.begin(9600);
-  pinMode(8,INPUT_PULLUP);                          //设置按键内部上拉
+  pinMode(12,INPUT_PULLUP);                         //设置按键内部上拉
+  pinMode(8,INPUT_PULLUP);
   pinMode(4,INPUT_PULLUP);
   pinMode(2,INPUT_PULLUP);
-  pinMode(6,OUTPUT);                                //设置灯珠PWM接口
-  pinMode(9,OUTPUT);
-  pinMode(10,OUTPUT);
-  pinMode(11,OUTPUT);
-  pinMode(13,OUTPUT);
+  pinMode(LR,OUTPUT);                                //设置灯珠PWM接口
+  pinMode(LB,OUTPUT);
+  pinMode(LG,OUTPUT);
+  pinMode(LW,OUTPUT);
+  pinMode(13,OUTPUT);                               //D13上接的是无源蜂鸣器啦
   MsTimer2::set(600000, batt);                     //电池检查定时器中断
   MsTimer2::start();
-  int sensorVal2 = digitalRead(2);                  //开机操作检查
-  int sensorVal4 = digitalRead(4);
-  if (sensorVal4==0)                                //设备自检
+  int KeyVal2 = digitalRead(2);                     //开机操作检查
+  int KeyVal4 = digitalRead(4);
+  delay (10);
+  int Key2;
+  int Key4;
+  int KeyVal22 = digitalRead(2);
+  int KeyVal42 = digitalRead(4);
+  if (KeyVal2==KeyVal22){Key2=0;}
+  if (KeyVal4==KeyVal42){Key4=0;}
+  if (Key2==0)                                        //设备自检
   {
     lcd.clear();
     lcd.print("POST Running");
@@ -87,36 +99,36 @@ void setup()                                        //开机预设
     lcd.print("LED&PWM Test");                      //灯珠及PWM机能测试
     lcd.setCursor(0,1);
     lcd.print("Red");                               //第一路
-    analogWrite(6,32);
+    analogWrite(LR,32);
     delay(500);
-    analogWrite(6,64);
+    analogWrite(LR,64);
     delay(500);
-    analogWrite(6,128);
+    analogWrite(LR,128);
     lcd.setCursor(0,1);
     lcd.print("Blue");                             //第二路
-    analogWrite(9,32);
+    analogWrite(LB,32);
     delay(500);
-    analogWrite(9,64);
+    analogWrite(LB,64);
     delay(500);
-    analogWrite(9,128);
+    analogWrite(LB,128);
     lcd.setCursor(0,1);
     lcd.print("Green");                             //第三路
-    analogWrite(10,32);
+    analogWrite(LG,32);
     delay(500);
-    analogWrite(10,64);
+    analogWrite(LG,64);
     delay(500);
-    analogWrite(10,128);
+    analogWrite(LG,128);
     lcd.setCursor(0,1);
     lcd.print("White");                             //第四路
-    analogWrite(11,32);
+    analogWrite(LW,32);
     delay(500);
-    analogWrite(11,64);
+    analogWrite(LW,64);
     delay(500);
-    analogWrite(11,128);
+    analogWrite(LW,128);
     delay(500);
     resetFunc();
   }
-  if (sensorVal2==0)                              //权益声明
+  if (Key4==0)                                      //权益声明
   {
     lcd.clear();
     lcd.print("ArduCall");
@@ -143,30 +155,36 @@ void setup()                                        //开机预设
     delay(4000);
     resetFunc();
   }
+  int switch_12= digitalRead(12);                     //判断执行功能
+  if (switch_12==0)
+    {manual();}
+  else
+    {automatic();}
 }
 
-void loop()                                           //执行预设
+void manual()                                         //无级调光
 {
-  int sensorVal8 = digitalRead(8);
-  int sensorVal4 = digitalRead(4);
-  int sensorVal2 = digitalRead(2);
-  red=analogRead(RR)/4;
-  green=analogRead(RG)/4;
-  blue=analogRead(RB)/4;
-  white=analogRead(RW)/4;
-  Serial.println(red);
-  analogWrite(6,red);
-  Serial.println(green);
-  analogWrite(9,green);
-  Serial.println(blue);
-  analogWrite(10,blue);
-  Serial.println(white);
-  analogWrite(11,white);
-  Serial.print("DP8:");
-  Serial.println(sensorVal8);
-  Serial.print("DP4:");
-  Serial.println(sensorVal4);
-  Serial.print("DP2:");
-  Serial.println(sensorVal2);
-  delay(5000);
+  while (1)
+  {
+    red=analogRead(RR)/4;
+    green=analogRead(RG)/4;
+    blue=analogRead(RB)/4;
+    white=analogRead(RW)/4;
+    Serial.println(red);
+    analogWrite(LR,red);
+    Serial.println(green);
+    analogWrite(LG,green);
+    Serial.println(blue);
+    analogWrite(LB,blue);
+    Serial.println(white);
+    analogWrite(LW,white);
+  }
+}
+
+void automatic()
+{
+  while(1)
+  {
+    
+  }
 }
