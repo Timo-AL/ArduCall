@@ -6,6 +6,7 @@
 //印度的锑粉们大家好，我们今天要发布的是年轻人的第一根应援棒ArduCall（浓雾）
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <MsTimer2.h>
 int RR=0;
 int RG=1;
 int RB=2;
@@ -16,6 +17,20 @@ int blue=0;
 int white=0;
 double battery=0;
 LiquidCrystal_I2C lcd(0x3F,16,2);
+
+void batt()                                         //计时器中断函数，检查电池
+{                        
+  battery=analogRead(6)*0.00488*2;
+  if(battery<3.1)
+  {
+    digitalWrite(13,HIGH);
+    sei( );
+    lcd.clear();
+    lcd.print("low Battery!");
+    delay(10000);
+    digitalWrite(13,LOW);
+  }
+}
 
 void(* resetFunc) (void) = 0;                       //软复位函数  
 
@@ -31,6 +46,9 @@ void setup()                                        //开机预设
   pinMode(9,OUTPUT);
   pinMode(10,OUTPUT);
   pinMode(11,OUTPUT);
+  pinMode(13,OUTPUT);
+  MsTimer2::set(600000, batt);                     //电池检查定时器中断
+  MsTimer2::start();
   int sensorVal2 = digitalRead(2);                  //开机操作检查
   int sensorVal4 = digitalRead(4);
   if (sensorVal4==0)                                //设备自检
