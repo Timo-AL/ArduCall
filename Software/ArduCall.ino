@@ -25,7 +25,7 @@ LiquidCrystal_I2C lcd(0x3F,16,2);
 
 void batt()                                         //计时器中断函数，检查电池
 {                        
-  battery=analogRead(6)*0.00488*2;
+  battery=analogRead(7)*0.00488*2;
   if(battery<3.1)
   {
     digitalWrite(13,HIGH);
