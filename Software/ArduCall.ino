@@ -1,13 +1,11 @@
 //ArduCall
-//Applying to Arduino Nano R3.
-//适用于Arduino Nano R3
+//fix for Arduino Nano R3.
 //Beveloped By Timo.
 //2018.1.1
 //GPL V3
 //印度的锑粉们大家好，我们今天要发布的是年轻人的第一根应援棒ArduCall（浓雾）
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-#include <MsTimer2.h>
 int RR=0;                                           //电位器引脚
 int RG=1;
 int RB=2;
@@ -25,16 +23,12 @@ LiquidCrystal_I2C lcd(0x3F,16,2);
 
 void batt()                                         //计时器中断函数，检查电池
 {                        
-  battery=analogRead(7)*0.00488*2;
-  if(battery<3.1)
-  {
     digitalWrite(13,HIGH);
     sei( );
     lcd.clear();
     lcd.print("low Battery!");
     delay(10000);
     digitalWrite(13,LOW);
-  }
 }
 
 void(* resetFunc) (void) = 0;                       //软复位函数  
@@ -53,30 +47,24 @@ void setup()                                        //开机预设
   pinMode(LG,OUTPUT);
   pinMode(LW,OUTPUT);
   pinMode(13,OUTPUT);                               //D13上接的是无源蜂鸣器啦
-  MsTimer2::set(600000, batt);                     //电池检查定时器中断
-  MsTimer2::start();
   int KeyVal2 = digitalRead(2);                     //开机操作检查
   int KeyVal4 = digitalRead(4);
-  delay (10);
-  int Key2;
-  int Key4;
-  int KeyVal22 = digitalRead(2);
-  int KeyVal42 = digitalRead(4);
-  if (KeyVal2==KeyVal22){Key2=0;}
-  if (KeyVal4==KeyVal42){Key4=0;}
-  if (Key2==0)                                        //设备自检
+  if (KeyVal2==0)                                   //设备自检
   {
     lcd.clear();
     lcd.print("POST Running");
     delay(2000);
     lcd.clear();
     lcd.print("Battery Test");                       //电池测试
-    battery=analogRead(6)*0.00488*2;
+    battery=analogRead(7)*0.00488*2;
     lcd.setCursor(0,1);
     lcd.print(battery);
     lcd.print(" V");
     delay(2000);                                     
     lcd.clear();
+    lcd.print("Potentiometer Test");
+    lcd.setCursor(0,1);
+    lcd.print("Test");
     red=analogRead(RR)/4;                            //获取电位器数据
     green=analogRead(RG)/4;
     blue=analogRead(RB)/4;
@@ -129,7 +117,7 @@ void setup()                                        //开机预设
     delay(500);
     resetFunc();
   }
-  if (Key4==0)                                      //权益声明
+  if (KeyVal4==0)                                      //权益声明
   {
     lcd.clear();
     lcd.print("ArduCall");
@@ -167,6 +155,8 @@ void manual()                                         //无级调光
 {
   while (1)
   {
+    battery=analogRead(7)*0.00488*2;
+    if(battery<6.2){batt();}
     red=analogRead(RR)/4;
     green=analogRead(RG)/4;
     blue=analogRead(RB)/4;
@@ -178,7 +168,25 @@ void manual()                                         //无级调光
     Serial.println(blue);
     analogWrite(LB,blue);
     Serial.println(white);
-    analogWrite(LW,white);
+    analogWrite(LW,white);    
+    lcd.setCursor(0,0);
+    lcd.print("R ");
+    lcd.setCursor(2,0);
+    lcd.print(red);
+    lcd.setCursor(8,0);
+    lcd.print("G ");
+    lcd.setCursor(10,0);
+    lcd.print(green);
+    lcd.setCursor(0,1);
+    lcd.print("B ");
+    lcd.setCursor(2,1);
+    lcd.print(blue);
+    lcd.setCursor(8,1);
+    lcd.print("W ");
+    lcd.setCursor(10,1);
+    lcd.print(white);
+    delay(1000);
+    lcd.clear();
   }
 }
 
